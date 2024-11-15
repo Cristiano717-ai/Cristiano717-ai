@@ -1,0 +1,111 @@
+import tkinter as tk
+from tkinter import messagebox
+
+# Clase base Tarea
+class Tarea:
+    def __init__(self, titulo, descripcion, fecha):
+        self.titulo = titulo
+        self.descripcion = descripcion
+        self.fecha = fecha
+
+    def mostrar_tarea(self):
+        return f"{self.titulo} - {self.descripcion} (Fecha: {self.fecha})"
+
+# Clase derivada para tareas personales
+class TareaPersonal(Tarea):
+    def __init__(self, titulo, descripcion, fecha):
+        super().__init__(titulo, descripcion, fecha)
+
+    def mostrar_tarea(self):
+        return f"[Personal] {super().mostrar_tarea()}"
+
+# Clase derivada para tareas laborales
+class TareaLaboral(Tarea):
+    def __init__(self, titulo, descripcion, fecha):
+        super().__init__(titulo, descripcion, fecha)
+
+    def mostrar_tarea(self):
+        return f"[Laboral] {super().mostrar_tarea()}"
+
+# Clase principal GestorDeTareas
+class GestorDeTareas:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Gestión de Tareas")
+        self.tareas = []
+
+        # Interfaz gráfica
+        self.frame = tk.Frame(self.root)
+        self.frame.pack(pady=10)
+
+        tk.Label(self.frame, text="Título:").grid(row=0, column=0)
+        self.titulo_entry = tk.Entry(self.frame, width=30)
+        self.titulo_entry.grid(row=0, column=1)
+
+        tk.Label(self.frame, text="Descripción:").grid(row=1, column=0)
+        self.descripcion_entry = tk.Entry(self.frame, width=30)
+        self.descripcion_entry.grid(row=1, column=1)
+
+        tk.Label(self.frame, text="Fecha de Vencimiento:").grid(row=2, column=0)
+        self.fecha_entry = tk.Entry(self.frame, width=30)
+        self.fecha_entry.grid(row=2, column=1)
+
+        tk.Button(self.frame, text="Agregar Tarea Personal", command=self.agregar_tarea_personal).grid(row=3, column=0, pady=5)
+        tk.Button(self.frame, text="Agregar Tarea Laboral", command=self.agregar_tarea_laboral).grid(row=3, column=1, pady=5)
+
+        # Lista de tareas
+        self.lista_tareas = tk.Listbox(self.root, width=50, height=10)
+        self.lista_tareas.pack(pady=10)
+
+        tk.Button(self.root, text="Eliminar Tarea", command=self.eliminar_tarea).pack()
+
+    def agregar_tarea_personal(self):
+        titulo = self.titulo_entry.get()
+        descripcion = self.descripcion_entry.get()
+        fecha = self.fecha_entry.get()
+
+        if titulo and descripcion and fecha:
+            tarea = TareaPersonal(titulo, descripcion, fecha)
+            self.tareas.append(tarea)
+            self.actualizar_lista()
+            self.limpiar_campos()
+        else:
+            messagebox.showwarning("Advertencia", "Por favor completa todos los campos.")
+
+    def agregar_tarea_laboral(self):
+        titulo = self.titulo_entry.get()
+        descripcion = self.descripcion_entry.get()
+        fecha = self.fecha_entry.get()
+
+        if titulo and descripcion and fecha:
+            tarea = TareaLaboral(titulo, descripcion, fecha)
+            self.tareas.append(tarea)
+            self.actualizar_lista()
+            self.limpiar_campos()
+        else:
+            messagebox.showwarning("Advertencia", "Por favor completa todos los campos.")
+
+    def actualizar_lista(self):
+        self.lista_tareas.delete(0, tk.END)
+        for tarea in self.tareas:
+            self.lista_tareas.insert(tk.END, tarea.mostrar_tarea())
+
+    def eliminar_tarea(self):
+        seleccion = self.lista_tareas.curselection()
+        if seleccion:
+            index = seleccion[0]
+            del self.tareas[index]
+            self.actualizar_lista()
+        else:
+            messagebox.showwarning("Advertencia", "Selecciona una tarea para eliminar.")
+
+    def limpiar_campos(self):
+        self.titulo_entry.delete(0, tk.END)
+        self.descripcion_entry.delete(0, tk.END)
+        self.fecha_entry.delete(0, tk.END)
+
+# Inicialización de la aplicación
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = GestorDeTareas(root)
+    root.mainloop()
